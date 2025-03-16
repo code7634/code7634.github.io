@@ -1,34 +1,125 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shree Hari Gold Satta King</title>
-    <link rel="shortcut icon" href="Images/logo.ico" type="image/x-icon">
-  <meta name="description" content="Shree Hari Gold Satta King Results">
-  <meta name="og:title" property="og:title" content="Shree Hari Gold">
-  <!--<meta property="og:title" content="Shree Hari Gold">-->
-    <meta property="og:description" content="Get the latest results and updates for Shree Hari Gold Satta King.">
-    <meta property="og:image" content="Images/logo.webp">
-    <meta name="robots" content="index, follow">
-  <meta name="keywords" content="Shree Hari Gold Satta King,  Satta,  Satta King,  Shree Hari Gold Satta, Shree Hari Gold Satta King Result Chart, Satta Bazar">
- <style></style>
+<style>
+#clockbody{
+  background-color:black;
+  width:120vw;
+  height:120vw;
+  border-radius:120vw;
+  }
+  #clock{
+    background-color:black;
+    display:flex;
+    justify-content:center;
+  align-items:center;
+  width:120vw;
+  height:120vw;
+  border-radius:120vw;
+  }
+  #clock1{
+  background-color:green;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100vw;
+  height:100vw;
+  border-radius:100vw;
+  }
+  #clock2{
+  background-color:blue;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:80vw;
+  height:80vw;
+  border-radius:80vw;
+  }
+  #clock3{
+  background-color:red;
+  width:60vw;
+  height:60vw;
+  border-radius:60vw;
+  }
   
-</head>
+  #row1{
+  background-color: white;
+  position:relative;
+    
+  left:20vw;
+  width:40vw;
+  height:15vw;
+  transform:rotate(135deg);
+  }
+</style>
+  </head>
 <body>
-    <!-- Jai Jai Siya Ram -->
-  <h1>Hi</h1>
-    <div id="container1"><div id="container2">
-        
-    </div></div>
-<script>
-  
-</script>
-
-   
+<h1>Death Clock</h1>
+  <script>
+    try{
+      alert("hlo28");
+      class DeathClock{
+      constructor(centerx,centery,bground,ground){
+        this.centerx=centerx
+        this.centery=centery
+        this.bground=bground
+        this.fground=ground
+          this.hlo();
+          }
+        hlo(){
+        alert("Hlo");
+        }
+        CreateElements(TagName,IdName,ClassName,Content){
+    let elem = document.createElement(TagName);
+    elem.setAttribute("id",IdName)
+    elem.classList.add(ClassName)
+    elem.style.position="relative";
+    elem.innerHTML=Content
+      return elem;
+  }
+        create(createdElem){
+          createdElem.style.left=this.centerx+"vw";
+          createdElem.style.top=this.centery+"vw";
+          createdElem.style.backgroundColor=this.bground;
+          createdElem.style.color=this.fground;
+          
+          
+          
+        }
+      }
+      let dc = new DeathClock(12,23,"black","white");
+      dcelem=dc.CreateElements("div","clock","clock","");
+      dcelem1=dc.CreateElements("div","clock1","clock1","")
+     dcelem2=dc.CreateElements("div","clock2","clock2","");  
+      dcelem3=dc.CreateElements("div","clock3","clock3","")
+     
+        dc.create(dcelem);
+      document.body.appendChild(dcelem);
+     dcelem.appendChild(dcelem1)
+     dcelem1.appendChild(dcelem2)
+       for(let i=0;i<10;i++){
+        // alert(i);
+         dcelem.appendChild(dc.CreateElements("span","txt"+i,"txt",""+i+""))
+         }  
+      dcelem2.appendChild(dcelem3)
+      function CreateElements(TagName,IdName,ClassName,Content){
+  let elem = document.createElement(TagName);
+    elem.setAttribute("id",IdName)
+    elem.classList.add(ClassName)
+    elem.innerHTML=Content
+      return elem;
+  }
+    let clockfullcontainer= CreateElements("div","clockbody","clockbody","");
+   //document.body.appendChild(clockfullcontainer);
+      let row1=CreateElements("div","row1","row1","");
+      clockfullcontainer.appendChild(row1);
+    }catch(err){
+        alert("error");
+    alert(err);
+    }
+  </script>
 </body>
 </html>
