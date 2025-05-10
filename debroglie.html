@@ -1,0 +1,26 @@
+<html><head></head>
+<body>
+<div id="form">
+
+  <form><input id="mass" type="number">
+    <input id="momen" type= "number">
+    <p id="output"></p>
+</div>
+  <script>
+    try{
+let mass = document.getElementById("mass");
+let momen = document.getElementById("momen");
+let output = document.getElementById("output");
+    mass.onvaluechange = function(){
+ if((mass.value!=0)&&(momen.value!=0)&&(mass.value!="")&&(momen.value!="")){
+   output.innerHTML = number(mass.value)*number(momen.value);
+ }else{
+   output.innerHTML = "Please fill correctly";
+ }
+    }
+    }catch(err){
+    alert(""+err);
+    }
+    
+  </script>
+</body></html>
