@@ -30,8 +30,10 @@ contract HelloWorld {
       return new Promise((resolve) => {
         window.Module = {
           onRuntimeInitialized: () => {
+            alert("compiler variable to assign");
             compiler = window.solc.setupMethods(Module);
             resolve();
+            alert("compiler variable assigned");
           }
         };
       });
