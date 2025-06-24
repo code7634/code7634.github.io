@@ -37,7 +37,9 @@ contract HelloWorld {
       const source = document.getElementById('source').value;
 
       if (!compiler) {
+        alert("!compiler block");
         await loadCompiler();
+        alert("loadCompiler completed");
       }
 
       const input = {
