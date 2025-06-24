@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Solidity Compiler with Global Try-Catch</title>
+</head>
+<body>
+  <h2>Browser Solidity Compiler (Debug + Try-Catch)</h2>
+  <textarea id="source" style="width:100%; height:200px;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract HelloWorld {
+    string public greeting = "Hello, world!"
+}
+  </textarea>
+  <br>
+  <button onclick="safeCompile()">Compile</button>
+
+  <!-- Load Solidity compiler -->
+  <script src="https://binaries.soliditylang.org/bin/soljson-v0.8.21+commit.d9974bed.js"></script>
+
+  <script>
+    // Manual compiler wrapper
+    function setupSolc(Module) {
+      alert("✅ setupSolc() called");
+      return {
+        compile: (input) => {
+          alert("✅ compiler.compile() called");
+          const inputStr = JSON.stringify(input);
+          alert("📦 JSON input:\n" + inputStr);
+          const outputStr = Module.ccall(
+            'solidity_compileStandard',
+            'string',
+            ['string'],
+            [inputStr]
+          );
+          alert("✅ Compilation finished");
+          return JSON.parse(outputStr);
+        }
+      };
+    }
+
+    // This holds the compiler once initialized
+    let compiler;
+
+    // Wrap the whole process in a global try-catch
+    function safeCompile() {
+      try {
+        compile();
+      } catch (globalError) {
+        alert("🔥 UNEXPECTED ERROR:\n" + globalError.message);
+      }
+    }
+
+    // Compile logic
+    function compile() {
+      alert("🔄 Compile button clicked");
+
+      const source = document.getElementById("source").value;
+      alert("📄 Source code loaded");
+
+      const input = {
+        language: 'Solidity',
+        sources: {
+          'MyContract.sol': { content: source }
+        },
+        settings: {
+          outputSelection: {
+            '*': {
+              '*': ['abi', 'evm.bytecode']
+            }
+          }
+        }
+      };
+      alert("📦 Compiler input constructed");
+
+      // Load WebAssembly and run once ready
+      Module = {
+        onRuntimeInitialized: () => {
+          alert("🧠 Compiler WASM initialized");
+          compiler = setupSolc(Module);
+
+          let output;
+          try {
+            output = compiler.compile(input);
+          } catch (e) {
+            alert("❌ Error during compiler.compile():\n" + e.message);
+            return;
+          }
+
+          alert("📤 Compiler output received");
+
+          // Errors & warnings
+          if (output.errors) {
+            let errors = "", warnings = "";
+            for (const e of output.errors) {
+              if (e.severity === "error") errors += e.formattedMessage + "\n\n";
+              else warnings += e.formattedMessage + "\n\n";
+            }
+            if (errors) alert("❌ ERRORS:\n\n" + errors);
+            if (warnings) alert("⚠️ WARNINGS:\n\n" + warnings);
+          } else {
+            alert("✅ No compilation errors or warnings");
+          }
+
+          // ABI + Bytecode
+          try {
+            const contractName = Object.keys(output.contracts["MyContract.sol"])[0];
+            alert("📌 Contract compiled: " + contractName);
+            const contract = output.contracts["MyContract.sol"][contractName];
+            alert("✅ ABI:\n\n" + JSON.stringify(contract.abi, null, 2));
+            alert("🔢 Bytecode:\n\n" + contract.evm.bytecode.object);
+          } catch (e) {
+            alert("⛔ ABI or Bytecode could not be extracted:\n" + e.message);
+          }
+        }
+      };
+
+      alert("📡 Waiting for compiler WebAssembly to load...");
+    }
+  </script>
+</body>
+</html>
