@@ -2,18 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Solidity Browser Compiler</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    textarea { width: 100%; height: 200px; font-family: monospace; }
-    pre { background: #f4f4f4; padding: 10px; border: 1px solid #ccc; }
-    .error { color: red; }
-    .warning { color: orange; }
-  </style>
+  <title>Solidity Compiler (Alerts)</title>
 </head>
 <body>
-  <h2>Solidity Compiler (Browser Only)</h2>
-  <textarea id="source">
+  <h2>Solidity Compiler (Alert Everything)</h2>
+  <textarea id="source" style="width:100%;height:200px;">
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -22,53 +15,31 @@ contract HelloWorld {
 }
   </textarea>
   <br><br>
-  <button id="compileButton">Compile</button>
+  <button onclick="compile()">Compile</button>
 
-  <h3>Errors</h3>
-  <pre id="errors" class="error"></pre>
-
-  <h3>Warnings</h3>
-  <pre id="warnings" class="warning"></pre>
-
-  <h3>ABI</h3>
-  <pre id="abi"></pre>
-
-  <h3>Bytecode</h3>
-  <pre id="bytecode"></pre>
-
-  <!-- Load solc-js (browser Solidity compiler) -->
-  <script src="https://binaries.soliditylang.org/bin/soljson-v0.8.20+commit.a1b79de6.js"></script>
+  <!-- Load Solidity compiler -->
+  <script src="https://binaries.soliditylang.org/bin/soljson-v0.8.21+commit.d9974bed.js"></script>
   <script>
     let compiler;
-    alert("hi");
 
-    document.getElementById('compileButton').addEventListener('click', async () => {
-      // Set up output areas
+    async function loadCompiler() {
+      return new Promise((resolve) => {
+        window.Module = {
+          onRuntimeInitialized: () => {
+            compiler = window.solc.setupMethods(Module);
+            resolve();
+          }
+        };
+      });
+    }
+
+    async function compile() {
       const source = document.getElementById('source').value;
-      const errorsEl = document.getElementById('errors');
-      const warningsEl = document.getElementById('warnings');
-      const abiEl = document.getElementById('abi');
-      const bytecodeEl = document.getElementById('bytecode');
 
-      errorsEl.textContent = '';
-      warningsEl.textContent = '';
-      abiEl.textContent = '';
-      bytecodeEl.textContent = '';
-
-      // Load and initialize compiler
       if (!compiler) {
-        const loaded = await new Promise((resolve) => {
-          window.Module = {
-            onRuntimeInitialized: function () {
-              const solc = window.solc.setupMethods(Module);
-              resolve(solc);
-            }
-          };
-        });
-        compiler = loaded;
+        await loadCompiler();
       }
 
-      // Prepare standard JSON input
       const input = {
         language: 'Solidity',
         sources: {
@@ -85,33 +56,38 @@ contract HelloWorld {
         }
       };
 
-      // Compile
       const output = JSON.parse(compiler.compile(JSON.stringify(input)));
 
-      // Handle errors & warnings
+      let errorMessages = "";
+      let warningMessages = "";
+
       if (output.errors) {
-        for (const error of output.errors) {
-          const msg = error.formattedMessage + '\n';
-          if (error.severity === 'error') {
-            errorsEl.textContent += msg;
+        for (const e of output.errors) {
+          if (e.severity === "error") {
+            errorMessages += e.formattedMessage + "\n\n";
           } else {
-            warningsEl.textContent += msg;
+            warningMessages += e.formattedMessage + "\n\n";
           }
         }
       }
 
-      // Display ABI and Bytecode if compilation succeeds
+      if (errorMessages) {
+        alert("❌ ERRORS:\n\n" + errorMessages);
+      }
+
+      if (warningMessages) {
+        alert("⚠️ WARNINGS:\n\n" + warningMessages);
+      }
+
       try {
         const contractName = Object.keys(output.contracts['MyContract.sol'])[0];
         const contract = output.contracts['MyContract.sol'][contractName];
-
-        abiEl.textContent = JSON.stringify(contract.abi, null, 2);
-        bytecodeEl.textContent = contract.evm.bytecode.object;
-      } catch (e) { 
-        alert("hlo");
-        // Ignore display if no contract compiled
+        alert("✅ ABI:\n\n" + JSON.stringify(contract.abi, null, 2));
+        alert("🧱 Bytecode:\n\n" + contract.evm.bytecode.object);
+      } catch {
+        alert("No ABI or Bytecode due to compilation error.");
       }
-    });
+    }
   </script>
 </body>
 </html>
