@@ -21,10 +21,12 @@ contract HelloWorld {
 
   <script src="https://binaries.soliditylang.org/bin/soljson-v0.8.21+commit.d9974bed.js"></script>
   <script>
+    alert("Script started");
     let compiler;
 
     // Load solc-js properly from the soljson global
     async function loadCompiler() {
+      alert("loadCompiler function");
       return new Promise((resolve) => {
         window.Module = {
           onRuntimeInitialized: () => {
@@ -36,12 +38,15 @@ contract HelloWorld {
     }
 
     async function compile() {
+      alert("compile function");
       const sourceCode = document.getElementById("source").value;
 
       if (!compiler) {
+        alert("!compiler block");
         await loadCompiler();
+        alert("loadCompiler finished");
       }
-
+alert("compiler block");
       const input = {
         language: "Solidity",
         sources: {
@@ -60,6 +65,7 @@ contract HelloWorld {
 
       // Show errors/warnings
       if (output.errors) {
+        alert("errors");
         let errors = "";
         let warnings = "";
 
