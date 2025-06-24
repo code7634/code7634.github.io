@@ -106,7 +106,8 @@ contract HelloWorld {
 
         abiEl.textContent = JSON.stringify(contract.abi, null, 2);
         bytecodeEl.textContent = contract.evm.bytecode.object;
-      } catch (e) {
+      } catch (e) { 
+        alert("hlo");
         // Ignore display if no contract compiled
       }
     });
