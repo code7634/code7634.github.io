@@ -22,6 +22,7 @@ contract HelloWorld {
   <script src="https://binaries.soliditylang.org/bin/soljson-v0.8.21+commit.d9974bed.js"></script>
   <script>
     alert("Script started");
+    try{
     let compiler;
 
     // Load solc-js properly from the soljson global
@@ -93,6 +94,9 @@ alert("compiler block");
       }
     }
     alert("compile function ended");
+    }catch(err){
+      alert(" the error is "+err);
+    }
   </script>
 </body>
 </html>
