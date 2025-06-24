@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Solidity Browser Compiler (Alert Everything)</title>
+</head>
+<body>
+  <h2>Solidity Compiler (in Browser)</h2>
+
+  <textarea id="source" style="width:100%; height:200px;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract HelloWorld {
+    string public greeting = "Hello, world!"
+}
+  </textarea>
+
+  <br><br>
+  <button onclick="compile()">Compile</button>
+
+  <script src="https://binaries.soliditylang.org/bin/soljson-v0.8.21+commit.d9974bed.js"></script>
+  <script>
+    let compiler;
+
+    // Load solc-js properly from the soljson global
+    async function loadCompiler() {
+      return new Promise((resolve) => {
+        window.Module = {
+          onRuntimeInitialized: () => {
+            compiler = window.solc.setupMethods(Module);
+            resolve();
+          }
+        };
+      });
+    }
+
+    async function compile() {
+      const sourceCode = document.getElementById("source").value;
+
+      if (!compiler) {
+        await loadCompiler();
+      }
+
+      const input = {
+        language: "Solidity",
+        sources: {
+          "MyContract.sol": { content: sourceCode }
+        },
+        settings: {
+          outputSelection: {
+            "*": {
+              "*": ["abi", "evm.bytecode"]
+            }
+          }
+        }
+      };
+
+      const output = JSON.parse(compiler.compile(JSON.stringify(input)));
+
+      // Show errors/warnings
+      if (output.errors) {
+        let errors = "";
+        let warnings = "";
+
+        for (const err of output.errors) {
+          if (err.severity === "error") {
+            errors += err.formattedMessage + "\n\n";
+          } else {
+            warnings += err.formattedMessage + "\n\n";
+          }
+        }
+
+        if (errors) alert("❌ Errors:\n\n" + errors);
+        if (warnings) alert("⚠️ Warnings:\n\n" + warnings);
+      }
+
+      try {
+        const contractName = Object.keys(output.contracts["MyContract.sol"])[0];
+        const contract = output.contracts["MyContract.sol"][contractName];
+        alert("✅ ABI:\n\n" + JSON.stringify(contract.abi, null, 2));
+        alert("🔢 Bytecode:\n\n" + contract.evm.bytecode.object);
+      } catch (e) {
+        alert("🚫 Compilation failed. No output generated.");
+      }
+    }
+  </script>
+</body>
+</html>
