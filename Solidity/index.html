@@ -33,6 +33,7 @@ contract HelloWorld {
 
   <script src="https://binaries.soliditylang.org/bin/soljson-latest.js"></script>
   <script>
+    try{
     function loadCompiler() {
       return new Promise((resolve) => {
         window.Module = {
@@ -91,6 +92,9 @@ contract HelloWorld {
 
       abiEl.textContent = JSON.stringify(contract.abi, null, 2);
       bytecodeEl.textContent = contract.evm.bytecode.object;
+    }
+    }catch(err){
+      alert("The error is "+err);
     }
   </script>
 </body>
