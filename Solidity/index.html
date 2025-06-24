@@ -1,1 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Solidity Compiler in Browser</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 200px; font-family: monospace; }
+    pre { background: #f0f0f0; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; }
+    #errors { color: red; }
+    #warnings { color: orange; }
+  </style>
+</head>
+<body>
+  <h2>Solidity Compiler (in Browser with solc-js)</h2>
+  <textarea id="source">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract HelloWorld {
+    string public greeting = "Hello, world!"
+}
+  </textarea>
+  <br><br>
+  <button onclick="compile()">Compile</button>
+
+  <h3>Errors</h3>
+  <pre id="errors"></pre>
+  <h3>Warnings</h3>
+  <pre id="warnings"></pre>
+  <h3>ABI</h3>
+  <pre id="abi"></pre>
+  <h3>Bytecode</h3>
+  <pre id="bytecode"></pre>
+
+  <script src="https://binaries.soliditylang.org/bin/soljson-latest.js"></script>
+  <script>
+    let solc;
+
+    // Load solc compiler from soljson
+    function loadCompiler() {
+      return new Promise((resolve) => {
+        Module = {
+          onRuntimeInitialized: () => {
+            solc = solcSetup(Module);
+            resolve();
+          }
+        };
+      });
+    }
+
+    function solcSetup(Module) {
+      const wrapper = window.Module;
+      return {
+        compile: wrapper.cwrap('solidity_compile', 'string', ['string', 'number']),
+        compileStandard: (inputJSON) => {
+          const input = JSON.stringify(inputJSON);
+          const result = wrapper.cwrap('solidity_compile', 'string', ['string', 'number'])(input, 0);
+          return JSON.parse(result);
+        }
+      };
+    }
+
+    async function compile() {
+      if (!solc) await loadCompiler();
+
+      const sourceCode = document.getElementById('source').value;
+      const errorsEl = document.getElementById('errors');
+      const warningsEl = document.getElementById('warnings');
+      const abiEl = document.getElementById('abi');
+      const bytecodeEl = document.getElementById('bytecode');
+
+      errorsEl.textContent = '';
+      warningsEl.textContent = '';
+      abiEl.textContent = '';
+      bytecodeEl.textContent = '';
+
+      const input = {
+        language: "Solidity",
+        sources: {
+          "MyContract.sol": {
+            content: sourceCode
+          }
+        },
+        settings: {
+          outputSelection: {
+            "*": {
+              "*": ["abi", "evm.bytecode"]
+            }
+          }
+        }
+      };
+
+      const output = solc.compileStandard(input);
+
+      if (output.errors) {
+        output.errors.forEach(e => {
+          if (e.severity === "error") {
+            errorsEl.textContent += e.formattedMessage + "\n";
+          } else {
+            warningsEl.textContent += e.formattedMessage + "\n";
+          }
+        });
+      }
+
+      try {
+        const contractName = Object.keys(output.contracts["MyContract.sol"])[0];
+        const contract = output.contracts["MyContract.sol"][contractName];
+        abiEl.textContent = JSON.stringify(contract.abi, null, 2);
+        bytecodeEl.textContent = contract.evm.bytecode.object;
+      } catch {
+        // Only show output if successful
+        alert("hi");
+      }
+    }
+  </script>
+</body>
+</html>
 
